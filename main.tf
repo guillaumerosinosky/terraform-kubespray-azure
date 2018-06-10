@@ -287,3 +287,79 @@ resource "azurerm_virtual_machine" "k8s-master-vm" {
     "etcd"        = ""
   }
 }
+
+# -----------------------------------------------------------------
+# CREATE NETWORK INTERFACES FOR AGENT NODES
+# -----------------------------------------------------------------
+
+resource "azurerm_network_interface" "k8s-agent-nic" {
+  count = "${var.agent_count}"
+
+  name                = "${var.resource_name_prefix}-agent-${format("%03d", count.index + 1)}-nic"
+  location            = "${var.azure_location}"
+  resource_group_name = "${azurerm_resource_group.kubespray.name}"
+
+  network_security_group_id = "${azurerm_network_security_group.kubespray-agent-nsg.id}"
+  enable_ip_forwarding      = true
+
+  ip_configuration {
+    name                          = "${var.resource_name_prefix}-agent-nic-ipconfig"
+    subnet_id                     = "${azurerm_subnet.kubespray-agent-subnet.id}"
+    private_ip_address_allocation = "dynamic"
+  }
+}
+
+# -----------------------------------------------------------------
+# CREATE AGENT NODES
+# -----------------------------------------------------------------
+
+resource "azurerm_virtual_machine" "k8s-agent-vm" {
+  count = "${var.agent_count}"
+
+  name                = "${var.resource_name_prefix}-agent-${format("%03d", count.index + 1)}-vm"
+  location            = "${var.azure_location}"
+  resource_group_name = "${azurerm_resource_group.kubespray.name}"
+
+  vm_size             = "${var.agent_vm_size}"
+  availability_set_id = "${azurerm_availability_set.kubespray-agent-as.id}"
+
+  network_interface_ids = [
+    "${element(azurerm_network_interface.k8s-agent-nic.*.id, count.index)}",
+  ]
+
+  storage_image_reference {
+    publisher = "${var.agent_vm_image_publisher}"
+    offer     = "${var.agent_vm_image_offer}"
+    sku       = "${var.agent_vm_image_sku}"
+    version   = "${var.agent_vm_image_version}"
+  }
+
+  storage_os_disk {
+    name              = "${var.resource_name_prefix}-agent-${format("%03d", count.index + 1)}-osdisk"
+    create_option     = "FromImage"
+    caching           = "ReadWrite"
+    disk_size_gb      = "${var.agent_vm_osdisk_size_in_gb}"
+    managed_disk_type = "${var.agent_vm_osdisk_type}"
+  }
+
+  os_profile {
+    computer_name  = "${var.resource_name_prefix}-master-${format("%03d", count.index + 1)}"
+    admin_username = "${var.admin_username}"
+  }
+
+  os_profile_linux_config {
+    disable_password_authentication = true
+
+    ssh_keys {
+      path     = "/home/${var.admin_username}/.ssh/authorized_keys"
+      key_data = "${var.admin_public_key}"
+    }
+  }
+
+  tags {
+    "roles"       = "kube-agent"
+    "k8s-cluster" = ""
+    "kube-master" = ""
+    "etcd"        = ""
+  }
+}

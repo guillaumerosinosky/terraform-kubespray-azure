@@ -36,18 +36,22 @@ variable "api_loadbalancer_backend_port" {
   default = "443"
 }
 
-variable "master_count" {
-  default = "3"
-}
-
-variable "master_vm_size" {
-  default = "Standard_B1ms"
+variable "domain_name_label" {
+  default = "kubesprayxx"
 }
 
 variable "admin_public_key" {}
 
 variable "admin_username" {
   default = "centos"
+}
+
+variable "master_count" {
+  default = "1"
+}
+
+variable "master_vm_size" {
+  default = "Standard_B1ms"
 }
 
 variable "master_vm_image_publisher" {
@@ -74,6 +78,34 @@ variable "master_vm_osdisk_size_in_gb" {
   default = "30"
 }
 
-variable "domain_name_label" {
-  default = "kubesprayxx"
+variable "agent_count" {
+  default = "2"
+}
+
+variable "agent_vm_size" {
+  default = "Standard_B1ms"
+}
+
+variable "agent_vm_image_publisher" {
+  default = "OpenLogic"
+}
+
+variable "agent_vm_image_offer" {
+  default = "CentOS"
+}
+
+variable "agent_vm_image_sku" {
+  default = "7-CI"
+}
+
+variable "agent_vm_image_version" {
+  default = "latest"
+}
+
+variable "agent_vm_osdisk_type" {
+  default = "Standard_LRS"
+}
+
+variable "agent_vm_osdisk_size_in_gb" {
+  default = "30"
 }

@@ -1,3 +1,8 @@
-###
+## Terraform template for Kubespray
 
-Terraform template to deploy a 1-3 masters with SSH access via LoadBalanced NAT, to be used with Kubespray
+###
+This template will deploy a full infrastructure ready to be Kube-formed with Kubespray. Features:
+
+- Uses managed disks for OS
+- Access to master nodes is achieved via NAT rules on the loadbalancer
+- [upcoming] Configurable data disks for agent nodes
