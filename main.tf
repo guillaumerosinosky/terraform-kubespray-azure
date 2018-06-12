@@ -5,6 +5,10 @@ provider "azurerm" {
   tenant_id       = "${var.azure_tenant_id}"
 }
 
+terraform {
+  backend "azurerm" {}
+}
+
 # -----------------------------------------------------------------
 # CREATE RESOURCE GROUP
 # -----------------------------------------------------------------
