@@ -1,11 +1,11 @@
-variable "azure_tenant_id" {}
+#variable "azure_tenant_id" {}
 
-variable "azure_subscription_id" {}
+#variable "azure_subscription_id" {}
 
 variable "contact" {}
 
 variable "azure_location" {
-  default = "westeurope"
+  default = "eastus"
 }
 
 variable "resource_group_name" {

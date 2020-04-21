@@ -1,13 +1,13 @@
 provider "azurerm" {
-  version = ">= 1.3.0"
-
-  subscription_id = "${var.azure_subscription_id}"
-  tenant_id       = "${var.azure_tenant_id}"
+  version = "~>2.0"
+  features {}
+  #subscription_id = "${var.azure_subscription_id}"
+  #tenant_id       = "${var.azure_tenant_id}"
 }
 
-terraform {
-  backend "azurerm" {}
-}
+#terraform {
+#  backend "azurerm" {}
+#}
 
 # -----------------------------------------------------------------
 # CREATE RESOURCE GROUP
@@ -16,7 +16,7 @@ resource "azurerm_resource_group" "kubespray" {
   name     = "${var.resource_group_name}"
   location = "${var.azure_location}"
 
-  tags {
+  tags = {
     Contact = "${var.contact}"
   }
 }
@@ -141,8 +141,8 @@ resource "azurerm_public_ip" "k8s-master-publicip" {
   resource_group_name = "${azurerm_resource_group.kubespray.name}"
   location            = "${var.azure_location}"
 
-  public_ip_address_allocation = "static"
   domain_name_label            = "${var.domain_name_label}"
+  allocation_method = "Static"
 }
 
 # -----------------------------------------------------------------
@@ -225,15 +225,15 @@ resource "azurerm_network_interface" "k8s-master-nic" {
   location            = "${var.azure_location}"
   resource_group_name = "${azurerm_resource_group.kubespray.name}"
 
-  network_security_group_id = "${azurerm_network_security_group.kubespray-master-nsg.id}"
+  #network_security_group_id = "${azurerm_network_security_group.kubespray-master-nsg.id}"
   enable_ip_forwarding      = true
 
   ip_configuration {
     name                                    = "${var.resource_name_prefix}-master-nic-ipconfig"
     subnet_id                               = "${azurerm_subnet.kubespray-master-subnet.id}"
     private_ip_address_allocation           = "dynamic"
-    load_balancer_backend_address_pools_ids = ["${azurerm_lb_backend_address_pool.k8s-master-lb-bepool.id}"]
-    load_balancer_inbound_nat_rules_ids     = ["${element(azurerm_lb_nat_rule.ssh-master-nat.*.id, count.index)}"]
+    #load_balancer_backend_address_pools_ids = ["${azurerm_lb_backend_address_pool.k8s-master-lb-bepool.id}"]
+    #load_balancer_inbound_nat_rules_ids     = ["${element(azurerm_lb_nat_rule.ssh-master-nat.*.id, count.index)}"]
   }
 }
 
@@ -284,7 +284,7 @@ resource "azurerm_virtual_machine" "k8s-master-vm" {
     }
   }
 
-  tags {
+  tags = {
     "roles"       = "kube-master,etcd"
     "k8s-cluster" = ""
     "kube-master" = ""
@@ -303,7 +303,7 @@ resource "azurerm_network_interface" "k8s-agent-nic" {
   location            = "${var.azure_location}"
   resource_group_name = "${azurerm_resource_group.kubespray.name}"
 
-  network_security_group_id = "${azurerm_network_security_group.kubespray-agent-nsg.id}"
+  #network_security_group_id = "${azurerm_network_security_group.kubespray-agent-nsg.id}"
   enable_ip_forwarding      = true
 
   ip_configuration {
@@ -360,7 +360,7 @@ resource "azurerm_virtual_machine" "k8s-agent-vm" {
     }
   }
 
-  tags {
+  tags = {
     "roles"       = "kube-agent"
     "k8s-cluster" = ""
     "kube-master" = ""
