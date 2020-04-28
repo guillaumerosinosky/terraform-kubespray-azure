@@ -1,4 +1,4 @@
-# resource_group_name = "kubernauts"
+# resource_group_name = "test"
 # resource_name_prefix = "k8s"
 
 # // admin username and public key for connection via SSH
@@ -6,6 +6,7 @@
 admin_public_key = ""
 
 contact = ""
+project = ""
 
 # // Azure service principal for self-configuration
 # vnet_cidr = "10.111.48.0/21"

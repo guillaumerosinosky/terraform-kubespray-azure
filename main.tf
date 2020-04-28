@@ -18,6 +18,7 @@ resource "azurerm_resource_group" "kubespray" {
 
   tags = {
     Contact = "${var.contact}"
+    project = "${var.project}"
   }
 }
 
@@ -235,6 +236,31 @@ resource "azurerm_network_interface" "k8s-master-nic" {
     #load_balancer_backend_address_pools_ids = ["${azurerm_lb_backend_address_pool.k8s-master-lb-bepool.id}"]
     #load_balancer_inbound_nat_rules_ids     = ["${element(azurerm_lb_nat_rule.ssh-master-nat.*.id, count.index)}"]
   }
+}
+
+
+resource "azurerm_network_interface_security_group_association" "k8s-master-nic-nsg" {
+  count = "${var.master_count}"
+ 
+  network_interface_id      = azurerm_network_interface.k8s-master-nic[count.index].id
+  network_security_group_id = azurerm_network_security_group.kubespray-master-nsg.id
+}
+
+
+resource "azurerm_network_interface_backend_address_pool_association" "k8s-master-nic-bap" {
+  count = "${var.master_count}"
+
+  network_interface_id    = azurerm_network_interface.k8s-master-nic[count.index].id
+  ip_configuration_name   = "${var.resource_name_prefix}-master-nic-ipconfig"
+  backend_address_pool_id = azurerm_lb_backend_address_pool.k8s-master-lb-bepool.id
+}
+
+resource "azurerm_network_interface_nat_rule_association" "k8s-master-nic-nat" {
+  count = "${var.master_count}"
+
+  network_interface_id  = azurerm_network_interface.k8s-master-nic[count.index].id
+  ip_configuration_name = "${var.resource_name_prefix}-master-nic-ipconfig"
+  nat_rule_id           = azurerm_lb_nat_rule.ssh-master-nat[count.index].id
 }
 
 # -----------------------------------------------------------------

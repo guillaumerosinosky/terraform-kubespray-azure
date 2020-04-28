@@ -2,14 +2,19 @@
 
 #variable "azure_subscription_id" {}
 
-variable "contact" {}
+variable "contact" {
+  default = "Guillaume"
+}
+
+variable "project" {
+  default = "test"
+}
 
 variable "azure_location" {
-  default = "eastus"
+  default = "westeurope"
 }
 
 variable "resource_group_name" {
-  default = "kubespray"
 }
 
 variable "resource_name_prefix" {
@@ -43,7 +48,7 @@ variable "domain_name_label" {
 variable "admin_public_key" {}
 
 variable "admin_username" {
-  default = "centos"
+  default = "ubuntu"
 }
 
 variable "master_count" {
@@ -79,7 +84,7 @@ variable "master_vm_osdisk_size_in_gb" {
 }
 
 variable "agent_count" {
-  default = "2"
+  default = "1"
 }
 
 variable "agent_vm_size" {
@@ -87,15 +92,15 @@ variable "agent_vm_size" {
 }
 
 variable "agent_vm_image_publisher" {
-  default = "OpenLogic"
+  default = "Canonical"
 }
 
 variable "agent_vm_image_offer" {
-  default = "CentOS"
+  default = "UbuntuServer"
 }
 
 variable "agent_vm_image_sku" {
-  default = "7-CI"
+  default = "18.04-LTS"
 }
 
 variable "agent_vm_image_version" {
