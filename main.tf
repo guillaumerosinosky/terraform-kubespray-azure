@@ -393,3 +393,28 @@ resource "azurerm_virtual_machine" "k8s-agent-vm" {
     "etcd"        = ""
   }
 }
+
+data "template_file" "inventory" {
+  template = "${file("${path.module}/templates/inventory.tpl")}"
+  
+  vars = {
+    admin_username            = "${var.admin_username}"
+    public_ip_address_bastion = "${join("\n", formatlist("bastion ansible_host=%s", azurerm_public_ip.k8s-master-publicip.fqdn))}"
+    connection_strings_master = "${join("\n", formatlist("%s ansible_host=%s", azurerm_virtual_machine.k8s-master-vm[*].name, azurerm_network_interface.k8s-master-nic.*.private_ip_address))}"
+    connection_strings_node   = "${join("\n", formatlist("%s ansible_host=%s", azurerm_virtual_machine.k8s-agent-vm.*.name, azurerm_network_interface.k8s-agent-nic.*.private_ip_address))}"
+    connection_strings_etcd   = "${join("\n", formatlist("%s ansible_host=%s", azurerm_virtual_machine.k8s-master-vm.*.name, azurerm_network_interface.k8s-master-nic.*.private_ip_address))}"
+    list_master               = "${join("\n", formatlist("%s",azurerm_virtual_machine.k8s-master-vm.*.name))}"
+    list_node                 = "${join("\n", formatlist("%s",azurerm_virtual_machine.k8s-agent-vm.*.name))}"
+    list_etcd                 = "${join("\n", formatlist("%s",azurerm_virtual_machine.k8s-master-vm.*.name))}"
+    #elb_api_fqdn              = "apiserver_loadbalancer_domain_name=\"${module.aws-elb.aws_elb_api_fqdn}\""
+  }
+}
+resource "null_resource" "inventories" {
+  provisioner "local-exec" {
+    command = "echo '${data.template_file.inventory.rendered}' > ${var.inventory_file}"
+  }
+
+  triggers = {
+    template = "${data.template_file.inventory.rendered}"
+  }
+}

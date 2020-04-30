@@ -60,15 +60,15 @@ variable "master_vm_size" {
 }
 
 variable "master_vm_image_publisher" {
-  default = "OpenLogic"
+  default = "Canonical"
 }
 
 variable "master_vm_image_offer" {
-  default = "CentOS"
+  default = "UbuntuServer"
 }
 
 variable "master_vm_image_sku" {
-  default = "7-CI"
+  default = "18.04-LTS"
 }
 
 variable "master_vm_image_version" {
@@ -113,4 +113,8 @@ variable "agent_vm_osdisk_type" {
 
 variable "agent_vm_osdisk_size_in_gb" {
   default = "30"
+}
+
+variable "inventory_file" {
+  default = "host.ini"
 }
