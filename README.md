@@ -37,4 +37,40 @@ Init parameters.
 ```
 export TF_VAR_admin_public_key=""
 export TF_VAR_resource_group_name="test2"
+
+# check if ok
+terraform plan -var="agent_count=2"
+
+terraform apply -var="agent_count=2"
 ```
+
+### Cluster installation (from master)
+Could be better with Bastion (next step)
+```
+#scp the wanted private key in ~/.ssh/id_rsa
+#scp the inventory.ini in ~
+# on the master node :
+chmod 700 ~/.ssh/id_rsa
+sudo apt update
+sudo apt install python3-pip
+mkdir xp
+cd xp
+git clone https://github.com/kubernetes-sigs/kubespray.git
+cd kubespray
+git checkout release-2.11 # parameter?
+cp -R inventory/sample inventory/mycluster
+cp ~/inventory.ini inventory/mycluster
+# update inventory/mycluster needed parameters
+sudo pip3 install -r requirements.txt
+# check if ok
+ansible -i inventory/liveMigrations/inventory.ini -m ping
+ansible-playbook -b -i inventory/liveMigrations/inventory.ini cluster.yml
+# if ok 
+kubectl cluster-info
+```
+Now you can label nodes and enjoy. Node 1 should be the "manager".
+
+### Scaling up/down
+ansible-playbook -b -i inventory/fabric/inventory.ini scale.yml
+
+ansible-playbook -b -i inventory/fabric/inventory.ini remove-node.yml --extra-vars "node=kubespray-agent-002-vm"
